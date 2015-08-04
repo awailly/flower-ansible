@@ -3,7 +3,7 @@ Automated scheduler and monitoring
 
 # API
 
-[Full flower API documentation](http://nbviewer.ipython.org/github/mher/flower/blob/master/docs/api.ipynb)
+[Full flower API documentation](http://flower.readthedocs.org/en/latest/api.html) and [examples](http://nbviewer.ipython.org/github/mher/flower/blob/master/docs/api.ipynb)
 
 ## Adding a task
 
