@@ -21,9 +21,9 @@
       - name: Installing Flower
         pip: name=flower
 
-      - name: Copying 'tasks.py' to remote server
+      - name: Copying 'flower/' to remote server
         sudo: no
-        copy: src=tasks.py dest=~/tasks.py
+        copy: src=flower dest=~/flower
             
       - name: Starting rabbitmq-server
         service: name=rabbitmq-server state=started
@@ -33,8 +33,8 @@
 
       - name: Starting celery worker
         sudo: no
-        shell: screen -S celworker -d -m celery -A tasks worker --loglevel=info
+        shell: screen -S celworker -d -m celery -A tasks worker --loglevel=info chdir=~/flower
 
       - name: Starting flower
         sudo: no
-        shell: screen -S flower -d -m flower --address=0.0.0.0 -A tasks --port=5555
+        shell: screen -S flower -d -m flower --address=0.0.0.0 -A tasks --port=5555 --basic_auth=user:password chdir=~/flower
