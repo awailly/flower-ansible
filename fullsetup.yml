@@ -3,6 +3,9 @@
 
   tasks:
 
+      - name: Updating local repos
+        apt: update=yes
+
       - name: Installing RabbitMQ as broker
         apt: name=rabbitmq-server state=present
 
