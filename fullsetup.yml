@@ -1,0 +1,40 @@
+- hosts: all
+  sudo: yes
+
+  tasks:
+
+      - name: Installing RabbitMQ as broker
+        apt: name=rabbitmq-server state=present
+
+      - name: Installing Redis as backend
+        apt: name=redis-server state=present
+
+      - name: Installing Pip
+        apt: name=python-pip
+
+      - name: Installing Redis python package
+        pip: name=redis
+
+      - name: Installing Celery
+        pip: name=celery
+
+      - name: Installing Flower
+        pip: name=flower
+
+      - name: Copying 'tasks.py' to remote server
+        sudo: no
+        copy: src=tasks.py dest=~/tasks.py
+            
+      - name: Starting rabbitmq-server
+        service: name=rabbitmq-server state=started
+
+      - name: Starting redis
+        service: name=redis-server state=started
+
+      - name: Starting celery worker
+        sudo: no
+        shell: screen -S celworker -d -m celery -A tasks worker --loglevel=info
+
+      - name: Starting flower
+        sudo: no
+        shell: screen -S flower -d -m flower --address=0.0.0.0 -A tasks --port=5555
