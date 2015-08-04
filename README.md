@@ -3,7 +3,9 @@ Automated scheduler and monitoring
 
 # Ansible 
 
-  ansible-playbook -e "pipelining=True" -b -u ubuntu --private-key=~/.ssh/id_rsa -i "172.30.3.12," fullsetup.yml
+```bash
+ansible-playbook -e "pipelining=True" -b -u ubuntu --private-key=~/.ssh/id_rsa -i "172.30.3.12," fullsetup.yml
+```
 
 # API
 
@@ -11,9 +13,13 @@ Automated scheduler and monitoring
 
 ## Adding a task
 
-  curl -X POST -d '{"args":[1,2]}' http://172.30.3.12:5555/api/task/async-apply/tasks.add
+```bash
+  curl -u user:password -X POST -d '{"args":[1,2]}' http://172.30.3.12:5555/api/task/async-apply/tasks.add
+```
 
 ## Listing tasks
 
-  curl http://172.30.3.12:5555/api/tasks
+```bash
+  curl -u user:password http://172.30.3.12:5555/api/tasks
+```
 
