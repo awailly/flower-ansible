@@ -4,7 +4,7 @@
   tasks:
 
       - name: Updating local repos
-        apt: update=yes
+        apt: update_cache=yes
 
       - name: Installing RabbitMQ as broker
         apt: name=rabbitmq-server state=present
@@ -36,8 +36,8 @@
 
       - name: Starting celery worker
         sudo: no
-        shell: screen -S celworker -d -m celery -A tasks worker --loglevel=info chdir=~/flower
+        shell: screen -S celworker -d -m celery -A hardening.tasks worker --loglevel=info chdir=~/flower
 
       - name: Starting flower
         sudo: no
-        shell: screen -S flower -d -m flower --address=0.0.0.0 -A tasks --port=5555 --basic_auth=user:password chdir=~/flower
+        shell: screen -S flower -d -m flower --address=0.0.0.0 -A hardening.tasks --port=5555 --basic_auth=user:password chdir=~/flower
