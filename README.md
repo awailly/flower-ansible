@@ -1,6 +1,10 @@
 # flower-ansible
 Automated scheduler and monitoring
 
+# Ansible 
+
+  ansible-playbook -e "pipelining=True" -b -u ubuntu --private-key=~/.ssh/id_rsa -i "172.30.3.12," fullsetup.yml
+
 # API
 
 [Full flower API documentation](http://flower.readthedocs.org/en/latest/api.html) and [examples](http://nbviewer.ipython.org/github/mher/flower/blob/master/docs/api.ipynb)
