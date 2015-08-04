@@ -23,7 +23,7 @@
 
       - name: Copying 'flower/' to remote server
         sudo: no
-        copy: src=flower dest=~/flower
+        copy: src=flower/ dest=~/flower/
             
       - name: Starting rabbitmq-server
         service: name=rabbitmq-server state=started
