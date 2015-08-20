@@ -1,6 +1,8 @@
 from celery import Celery
 import subprocess
 import uuid
+import redis
+import datetime
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
@@ -22,7 +24,16 @@ def get_credentials(vmid):
 
 @app.task
 def hardening_ex(vmid, ip, tag):
-    trust_host(ip)
+    result = {}
+    result['id'] = str(uuid.uuid4())
+    result['error'] = ''
+    status = trust_host(ip)
+
+    if status != 0:
+        result['returncode'] = 1
+        result['error'] = 'Unable to trust host %s' % repr(ip)
+        return result
+
     user,key = get_credentials(vmid)
     playbook = "/home/ubuntu/ansible/roles-ubuntu/playbook.yml"
 
@@ -35,7 +46,22 @@ def hardening_ex(vmid, ip, tag):
     print(output)
 
     result = {}
-    result['returncode'] = returncode
-    result['id'] = uuid.uuid4()
+    result['returncode'] = p.returncode
+    result['id'] = str(uuid.uuid4())
 
-    return p.returncode
+    date = datetime.datetime.now().isoformat()
+    formatted_audit = {}
+
+    r = redis.Redis('localhost')
+    r.hset("audit_%s" % vmid, "date", date)
+
+    tasks = output.split("TASK:")
+    for task in tasks:
+        print(repr(task))
+        audit_key = task.split("]")[0].split("[")[1]
+        audit_value = task.split("\n")[1:]
+        r.hset("audit_%s" % vmid, audit_key, audit_value)
+
+    print(r.hgetall("audit_%s" % vmid))
+
+    return result
