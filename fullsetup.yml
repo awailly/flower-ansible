@@ -34,6 +34,19 @@
       - name: Starting redis
         service: name=redis-server state=started
 
+      - name: Binding redis to 0.0.0.0
+        lineinfile: >
+            dest=/etc/redis/redis.conf
+            regexp="bind 127.0.0.1"
+            line="bind 0.0.0.0"
+            state=present
+
+      - name: Setting password for reddis
+        lineinfile: >
+            dest=/etc/redis/redis.conf
+            line="# require password bla"
+            state=present
+
       - name: Starting celery worker
         sudo: no
         shell: screen -S celworker -d -m celery -A hardening.tasks worker --loglevel=info chdir=/home/ubuntu/flower
