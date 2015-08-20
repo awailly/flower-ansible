@@ -34,16 +34,16 @@ def hardening_ex(vmid, ip, tag):
         result['error'] = 'Unable to trust host %s' % repr(ip)
         return result
 
-    user,key = get_credentials(vmid)
+    user, key = get_credentials(vmid)
     playbook = "/home/ubuntu/ansible/roles-ubuntu/playbook.yml"
 
-    print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
+    #print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
     command = 'ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s -t %s %s' % (user, key, ip, tag, playbook)
-    print(repr(command.split(" ")))
+    #print(repr(command.split(" ")))
 
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
     output = p.communicate()[0]
-    print(output)
+    #print(output)
 
     result = {}
     result['returncode'] = p.returncode
@@ -55,13 +55,13 @@ def hardening_ex(vmid, ip, tag):
     r = redis.Redis('localhost')
     r.hset("audit_%s" % vmid, "date", date)
 
-    tasks = output.split("TASK:")
+    # Removing the first with useless information
+    tasks = output.split("TASK:")[1:]
     for task in tasks:
-        print(repr(task))
         audit_key = task.split("]")[0].split("[")[1]
         audit_value = task.split("\n")[1:]
         r.hset("audit_%s" % vmid, audit_key, audit_value)
 
-    print(r.hgetall("audit_%s" % vmid))
+    #print(r.hgetall("audit_%s" % vmid))
 
     return result
