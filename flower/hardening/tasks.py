@@ -15,7 +15,7 @@ def trust_host(ip):
     p = subprocess.Popen(["ssh-keyscan", ip], stdout=subprocess.PIPE)
     output = p.communicate()[0]
     key = output.split("\n")[-1]
-    print("Found key: %s" % key)
+    #print("Found key: %s" % key)
     return p.returncode
 
 def get_credentials(vmid):
