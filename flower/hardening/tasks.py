@@ -4,6 +4,7 @@ import uuid
 import redis
 import datetime
 import requests
+import json
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
