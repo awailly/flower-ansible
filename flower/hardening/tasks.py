@@ -40,8 +40,20 @@ def get_credentials(vmid):
     priv_key = "~/.ssh/id_rsa"
     return ("ubuntu", priv_key)
 
+def patch_history(callback, status):
+    headers = {'content-type': 'application/json'}
+
+    data = { "status" : status }
+    r = requests.patch(callback, data=json.dumps(data), headers=self.headers)
+
+    if r.status_code == 200:
+        pprint(r.json())
+        return r.json()["id"]
+    else:
+        return r.text
+
 @app.task
-def hardening_ex(vmid, ip, tag):
+def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['id'] = str(uuid.uuid4())
     status = trust_host(ip)
@@ -58,6 +70,7 @@ def hardening_ex(vmid, ip, tag):
     command = 'ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
     print(repr(command.split(" ")))
 
+    patch_history(callback, "St")
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
     output = p.communicate()[0]
     print(output)
@@ -68,6 +81,8 @@ def hardening_ex(vmid, ip, tag):
     try:
         date = datetime.datetime.now().isoformat()
         formatted_audit = {}
+
+        patch_history(callback, "Su")
 
         r = redis.Redis('localhost')
         r.hset("audit:%s" % vmid, "date", date)
@@ -82,6 +97,7 @@ def hardening_ex(vmid, ip, tag):
             audit_value = task.split("\n")[1:]
             r.hset("audit_%s" % vmid, audit_key, audit_value)
     except:
+        patch_history(callback, "Fa")
         result['error'] = output
 
     #print(r.hgetall("audit_%s" % vmid))
