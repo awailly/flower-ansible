@@ -3,6 +3,7 @@ import subprocess
 import uuid
 import redis
 import datetime
+import requests
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
