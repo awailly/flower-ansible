@@ -5,7 +5,7 @@ import redis
 import datetime
 import requests
 import json
-import pprint
+from pprint import pprint
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
