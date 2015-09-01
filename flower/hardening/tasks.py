@@ -46,7 +46,7 @@ def patch_history(callback, status):
     headers = {'content-type': 'application/json'}
 
     data = { "status" : status }
-    r = requests.patch(callback, data=json.dumps(data), headers=self.headers)
+    r = requests.patch(callback, data=json.dumps(data), headers=headers)
 
     if r.status_code == 200:
         pprint(r.json())
@@ -72,6 +72,7 @@ def hardening_ex(vmid, callback, ip, tag):
     command = 'ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
     print(repr(command.split(" ")))
 
+    print(repr(callback))
     patch_history(callback, "St")
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
     output = p.communicate()[0]
