@@ -98,8 +98,9 @@ def hardening_ex(vmid, callback, ip, tag):
     items = score.split(" ")
     results = {}
     for item in items:
-        eq = item.split("=")
-        results[eq[0]] = eq[1]
+        if len(item):
+            eq = item.split("=")
+            results[eq[0]] = eq[1]
 
     patch_history(callback, "Su", results)
 
