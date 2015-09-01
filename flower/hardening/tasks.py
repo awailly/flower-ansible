@@ -5,6 +5,7 @@ import redis
 import datetime
 import requests
 import json
+import pprint
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
@@ -43,6 +44,10 @@ def get_credentials(vmid):
     return ("ubuntu", priv_key)
 
 def patch_history(callback, status):
+    """
+    Do not catch exception, it is better to kill the task and show the
+    appropriate error in the celery console
+    """
     headers = {'content-type': 'application/json'}
 
     data = { "status" : status }
