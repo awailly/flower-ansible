@@ -5,7 +5,6 @@ import redis
 import datetime
 import requests
 import json
-from pprint import pprint
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
@@ -43,7 +42,7 @@ def get_credentials(vmid):
     priv_key = "~/.ssh/id_rsa"
     return ("ubuntu", priv_key)
 
-def patch_history(callback, status):
+def patch_history(callback, status, results = None):
     """
     Do not catch exception, it is better to kill the task and show the
     appropriate error in the celery console
@@ -51,10 +50,12 @@ def patch_history(callback, status):
     headers = {'content-type': 'application/json'}
 
     data = { "status" : status }
+    if results:
+        data["results"] = results
+
     r = requests.patch(callback, data=json.dumps(data), headers=headers)
 
     if r.status_code == 200:
-        pprint(r.json())
         return r.json()["id"]
     else:
         return r.text
@@ -90,12 +91,18 @@ def hardening_ex(vmid, callback, ip, tag):
         date = datetime.datetime.now().isoformat()
         formatted_audit = {}
 
-        patch_history(callback, "Su")
-
         r = redis.Redis('localhost')
         r.hset("audit:%s" % vmid, "date", date)
 
         score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
+        items = score.split(" ")
+        results = {}
+        for item in items:
+            eq = item.split("=")
+            results[eq[0]] = eq[1]
+
+        patch_history(callback, "Su", results)
+
         r.hset("audit:%s:evolution" % vmid, date, score)
 
         # Removing the first with useless information
