@@ -87,33 +87,33 @@ def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['returncode'] = p.returncode
 
-    try:
-        date = datetime.datetime.now().isoformat()
-        formatted_audit = {}
+    #try:
+    date = datetime.datetime.now().isoformat()
+    formatted_audit = {}
 
-        r = redis.Redis('localhost')
-        r.hset("audit:%s" % vmid, "date", date)
+    r = redis.Redis('localhost')
+    r.hset("audit:%s" % vmid, "date", date)
 
-        score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
-        items = score.split(" ")
-        results = {}
-        for item in items:
-            eq = item.split("=")
-            results[eq[0]] = eq[1]
+    score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
+    items = score.split(" ")
+    results = {}
+    for item in items:
+        eq = item.split("=")
+        results[eq[0]] = eq[1]
 
-        patch_history(callback, "Su", results)
+    patch_history(callback, "Su", results)
 
-        r.hset("audit:%s:evolution" % vmid, date, score)
+    r.hset("audit:%s:evolution" % vmid, date, score)
 
-        # Removing the first with useless information
-        tasks = output.split("TASK:")[1:]
-        for task in tasks:
-            audit_key = task.split("]")[0].split("[")[1]
-            audit_value = task.split("\n")[1:]
-            r.hset("audit_%s" % vmid, audit_key, audit_value)
-    except:
-        patch_history(callback, "Fa")
-        result['error'] = output
+    # Removing the first with useless information
+    tasks = output.split("TASK:")[1:]
+    for task in tasks:
+        audit_key = task.split("]")[0].split("[")[1]
+        audit_value = task.split("\n")[1:]
+        r.hset("audit_%s" % vmid, audit_key, audit_value)
+    #except:
+    #    patch_history(callback, "Fa")
+    #    result['error'] = output
 
     #print(r.hgetall("audit_%s" % vmid))
 
