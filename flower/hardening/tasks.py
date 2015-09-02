@@ -1,7 +1,9 @@
 from celery import Celery
+from pprint import pprint
+
 import subprocess
 import uuid
-import redis
+# import redis
 import datetime
 import requests
 import json
@@ -9,9 +11,11 @@ import json
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
 
+
 @app.task
 def add(x, y):
     return x + y
+
 
 def trust_host(ip):
     found = 0
@@ -19,7 +23,7 @@ def trust_host(ip):
         lines = myfile.readlines()
         for line in lines:
             if ip in line:
-                found=1
+                found = 1
 
     if found:
         print("Already trusted IP")
@@ -38,9 +42,11 @@ def trust_host(ip):
 
     return p.returncode
 
+
 def get_credentials(vmid):
     priv_key = "~/.ssh/id_rsa"
     return ("ubuntu", priv_key)
+
 
 def patch_history(callback, status, results=None, details=None):
     """
@@ -49,13 +55,13 @@ def patch_history(callback, status, results=None, details=None):
     """
     headers = {'content-type': 'application/json'}
 
-    data = { "status" : status }
+    data = {"status": status}
     if results:
         data["results"] = results
     if details:
         finald = []
         for k in details:
-            finald.append({ "key":k , "value":details[k] })
+            finald.append({"key": k, "value": details[k]})
         data["details"] = finald
 
     print("Sending %s" % repr(data))
@@ -65,6 +71,7 @@ def patch_history(callback, status, results=None, details=None):
         return r.json()["id"]
     else:
         return r.text
+
 
 @app.task
 def hardening_ex(vmid, callback, ip, tag):
@@ -93,7 +100,7 @@ def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['returncode'] = p.returncode
 
-    #try:
+    # try:
     date = datetime.datetime.now().isoformat()
 
     score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
@@ -109,17 +116,21 @@ def hardening_ex(vmid, callback, ip, tag):
     details = {}
 
     # Removing the first with useless information
+    pprint("=== tasks processing ===")
     tasks = output.split("TASK:")[1:]
+    pprint(tasks)
     for task in tasks:
+        pprint("=== single task ===")
+        pprint(task)
         audit_key = task.split("]")[0].split("[")[1]
         audit_value = " ".join(task.split("\n")[1:])
         details[audit_key] = audit_value
 
     patch_history(callback, "Su", details=details)
-    #except:
+    # except:
     #    patch_history(callback, "Fa")
     #    result['error'] = output
 
-    #print(r.hgetall("audit_%s" % vmid))
+    # print(r.hgetall("audit_%s" % vmid))
 
     return result
