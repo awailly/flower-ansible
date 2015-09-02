@@ -54,8 +54,8 @@ def patch_history(callback, status, results=None, details=None):
         data["results"] = results
     if details:
         finald = []
-        for k,v in details:
-            finald.append({ "key":k , "value":v })
+        for k in details:
+            finald.append({ "key":k , "value":details[k] })
         data["details"] = finald
 
     print("Sending %s" % repr(data))
