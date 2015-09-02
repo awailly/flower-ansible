@@ -53,7 +53,10 @@ def patch_history(callback, status, results=None, details=None):
     if results:
         data["results"] = results
     if details:
-        data["details"] = details
+        finald = []
+        for k,v in details:
+            finald.append({ "key":k , "value":v })
+        data["details"] = finald
 
     print("Sending %s" % repr(data))
     r = requests.patch(callback, data=json.dumps(data), headers=headers)
