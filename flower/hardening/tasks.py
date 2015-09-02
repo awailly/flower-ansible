@@ -1,5 +1,6 @@
 from celery import Celery
 from pprint import pprint
+from collections import OrderedDict
 
 import subprocess
 import uuid
@@ -129,7 +130,9 @@ def hardening_ex(vmid, callback, ip, tag):
         audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
         details[audit_key] = audit_value
 
-    patch_history(callback, "Su", details=details)
+    _details = OrderedDict(sorted(details.items(), key=lambda t: t[0]))
+    patch_history(callback, "Su", details=_details)
+
     # except:
     #    patch_history(callback, "Fa")
     #    result['error'] = output
