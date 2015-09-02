@@ -124,9 +124,9 @@ def hardening_ex(vmid, callback, ip, tag):
         pprint("=== single task ===")
         pprint(task)
         # audit_key = task.split("]")[0].split("[")[1]
-        audit_key = re.search('(\d)(.+)(\))', task)
+        audit_key = re.search('(\d)(.+)(\))', task).group(0)
         # audit_value = " ".join(task.split("\n")[1:])
-        audit_value = re.search('(\\n)(\w+)(\:)', task)
+        audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
         details[audit_key] = audit_value
 
     patch_history(callback, "Su", details=details)
