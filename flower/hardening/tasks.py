@@ -55,6 +55,7 @@ def patch_history(callback, status, results=None, details=None):
     if details:
         data["details"] = details
 
+    print("Sending %s" % repr(data))
     r = requests.patch(callback, data=json.dumps(data), headers=headers)
 
     if r.status_code == 200:
