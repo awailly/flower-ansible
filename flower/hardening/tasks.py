@@ -112,7 +112,7 @@ def hardening_ex(vmid, callback, ip, tag):
     tasks = output.split("TASK:")[1:]
     for task in tasks:
         audit_key = task.split("]")[0].split("[")[1]
-        audit_value = task.split("\n")[1:]
+        audit_value = " ".join(task.split("\n")[1:])
         details[audit_key] = audit_value
 
     patch_history(callback, "Su", details=details)
