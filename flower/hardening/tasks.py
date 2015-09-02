@@ -42,7 +42,7 @@ def get_credentials(vmid):
     priv_key = "~/.ssh/id_rsa"
     return ("ubuntu", priv_key)
 
-def patch_history(callback, status, results = None):
+def patch_history(callback, status, results=None, details=None):
     """
     Do not catch exception, it is better to kill the task and show the
     appropriate error in the celery console
@@ -89,10 +89,6 @@ def hardening_ex(vmid, callback, ip, tag):
 
     #try:
     date = datetime.datetime.now().isoformat()
-    formatted_audit = {}
-
-    r = redis.Redis('localhost')
-    r.hset("audit:%s" % vmid, "date", date)
 
     score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
     items = score.split(" ")
@@ -104,14 +100,16 @@ def hardening_ex(vmid, callback, ip, tag):
 
     patch_history(callback, "Su", results)
 
-    r.hset("audit:%s:evolution" % vmid, date, score)
+    details = {}
 
     # Removing the first with useless information
     tasks = output.split("TASK:")[1:]
     for task in tasks:
         audit_key = task.split("]")[0].split("[")[1]
         audit_value = task.split("\n")[1:]
-        r.hset("audit_%s" % vmid, audit_key, audit_value)
+        details[audit_key] = audit_value
+
+    patch_history(callback, "Su", details=details)
     #except:
     #    patch_history(callback, "Fa")
     #    result['error'] = output
