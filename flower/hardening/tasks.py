@@ -7,6 +7,7 @@ import uuid
 import datetime
 import requests
 import json
+import re
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
@@ -122,8 +123,10 @@ def hardening_ex(vmid, callback, ip, tag):
     for task in tasks:
         pprint("=== single task ===")
         pprint(task)
-        audit_key = task.split("]")[0].split("[")[1]
-        audit_value = " ".join(task.split("\n")[1:])
+        # audit_key = task.split("]")[0].split("[")[1]
+        audit_key = re.search('(\d)(.+)(\))', task)
+        # audit_value = " ".join(task.split("\n")[1:])
+        audit_value = re.search('(\\n)(\w+)(\:)', task)
         details[audit_key] = audit_value
 
     patch_history(callback, "Su", details=details)
