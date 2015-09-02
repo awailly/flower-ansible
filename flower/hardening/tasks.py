@@ -52,6 +52,8 @@ def patch_history(callback, status, results=None, details=None):
     data = { "status" : status }
     if results:
         data["results"] = results
+    if details:
+        data["details"] = details
 
     r = requests.patch(callback, data=json.dumps(data), headers=headers)
 
