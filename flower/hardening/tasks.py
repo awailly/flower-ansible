@@ -115,14 +115,19 @@ def hardening_ex(vmid, callback, ip, tag):
             output = line
 
             if got_task == 0 and "TASK :" not in output:
+                print("Waiting for TASK")
                 continue
             elif in_task:
+                print("In TASK")
                 if "TASK :" not in output:
+                    print("adding")
                     audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
                     details[task_name] += audit_value
                 else:
+                    print("patching")
                     patch_history(callback, "St", details=details)
             elif final_next == True:
+                print("Final")
                 score = output.split(":")[1].split("\n")[0]
                 items = score.split(" ")
                 results = {}
@@ -140,9 +145,11 @@ def hardening_ex(vmid, callback, ip, tag):
                     raise Exception("SSH Error: Permission denied (publickey)")
 
                 if "PLAY RECAP" in output:
+                    print("Play recap")
                     final_next = True
 
                 if "TASK: " in output:
+                    print("in task = True")
                     in_task = True
                     details = {}
 
