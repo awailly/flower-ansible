@@ -103,6 +103,9 @@ def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['returncode'] = p.returncode
 
+    if "SSH Error: Permission denied (publickey)" in output:
+        raise Exception("SSH Error: Permission denied (publickey)")
+
     try:
         date = datetime.datetime.now().isoformat()
 
