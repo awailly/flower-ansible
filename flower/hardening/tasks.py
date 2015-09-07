@@ -8,7 +8,6 @@ import uuid
 import datetime
 import requests
 import json
-import re
 from lxml import etree
 
 app = Celery('tasks')
@@ -170,7 +169,7 @@ def hardening_ex(vmid, callback, ip, tag):
                     got_task = True
                     details = {}
 
-                    audit_key = re.search('(\d)(.+)(\))', output).group(0)
+                    audit_key = output.split("| ")[1].split("]")[0]
                     task_name = audit_key
                     details[task_name] = ""
 
