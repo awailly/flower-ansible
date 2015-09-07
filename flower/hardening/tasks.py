@@ -9,6 +9,7 @@ import datetime
 import requests
 import json
 import re
+from lxml import etree
 
 app = Celery('tasks')
 app.config_from_object('celeryconfig')
@@ -102,41 +103,76 @@ def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['returncode'] = p.returncode
 
-    # try:
-    date = datetime.datetime.now().isoformat()
+    try:
+        date = datetime.datetime.now().isoformat()
 
-    score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
-    items = score.split(" ")
-    results = {}
-    for item in items:
-        if len(item):
-            eq = item.split("=")
-            results[eq[0]] = eq[1]
+        score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
+        items = score.split(" ")
+        results = {}
+        for item in items:
+            if len(item):
+                eq = item.split("=")
+                results[eq[0]] = eq[1]
 
-    patch_history(callback, "Su", results)
+        patch_history(callback, "Su", results)
 
-    details = {}
+        details = {}
 
-    # Removing the first with useless information
-    pprint("=== tasks processing ===")
-    tasks = output.split("TASK:")[1:]
-    pprint(tasks)
-    for task in tasks:
-        pprint("=== single task ===")
-        pprint(task)
-        # audit_key = task.split("]")[0].split("[")[1]
-        audit_key = re.search('(\d)(.+)(\))', task).group(0)
-        # audit_value = " ".join(task.split("\n")[1:])
-        audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
-        details[audit_key] = audit_value
+        # Removing the first with useless information
+        pprint("=== tasks processing ===")
+        tasks = output.split("TASK:")[1:]
+        pprint(tasks)
+        for task in tasks:
+            pprint("=== single task ===")
+            pprint(task)
+            # audit_key = task.split("]")[0].split("[")[1]
+            audit_key = re.search('(\d)(.+)(\))', task).group(0)
+            # audit_value = " ".join(task.split("\n")[1:])
+            audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
+            details[audit_key] = audit_value
 
-    _details = OrderedDict(sorted(details.items(), key=lambda t: t[0]))
-    patch_history(callback, "Su", details=_details)
+        _details = OrderedDict(sorted(details.items(), key=lambda t: t[0]))
+        patch_history(callback, "Su", details=_details)
 
-    # except:
-    #    patch_history(callback, "Fa")
-    #    result['error'] = output
+    except:
+        patch_history(callback, "Fa")
+        result['error'] = output
+        raise
 
     # print(r.hgetall("audit_%s" % vmid))
+
+    return result
+
+@app.task
+def scanning_ex(vmid, callback, ip, port):
+    result = {}
+    result['id'] = str(uuid.uuid4())
+
+    command = 'nmap -T4 -oX /tmp/scan.xml -vvv --reason -p %s %s' % (port, ip)
+    print(repr(command.split(" ")))
+    print(repr(callback))
+    patch_history(callback, "St")
+
+    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+    output = p.communicate()[0]
+    print(output)
+
+    result = {}
+    result['returncode'] = p.returncode
+
+    try:
+        date = datetime.datetime.now().isoformat()
+        results = { "key": "lol" }
+        r = lxml.etree.ElementTree.parse('/tmp/scan.xml').getroot()
+        for port in r:
+            details[r[0]] = r[1]
+
+        _details = details
+
+        patch_history(callback, "Su", results=results, details=_details)
+    except:
+        patch_history(callback, "Fa")
+        result['error'] = output
+        raise
 
     return result
