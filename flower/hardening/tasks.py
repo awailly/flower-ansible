@@ -116,6 +116,8 @@ def hardening_ex(vmid, callback, ip, tag):
             if got_task == False and "TASK: " not in output:
                 print("Waiting for TASK")
                 continue
+            elif output == "\n":
+                continue
             elif got_task:
                 print("In TASK")
                 if "TASK: " not in output:
