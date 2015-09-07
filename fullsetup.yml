@@ -13,10 +13,10 @@
         apt: name=redis-server state=present
 
       - name: Installing Pip
-        apt: name=python-pip
+        apt: name=python-pip state=present
 
-      - name: Installing Redis python package
-        pip: name=redis
+      - name: Installing XML 
+        apt: name=python-lxml state=present
 
       - name: Installing Celery
         pip: name=celery
