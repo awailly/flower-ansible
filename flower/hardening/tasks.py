@@ -103,8 +103,7 @@ def hardening_ex(vmid, callback, ip, tag):
     result = {}
     result['returncode'] = p.returncode
 
-    got_task = 0
-    in_task = False
+    got_task = False
     final_next = False
     task_name = ""
 
@@ -114,10 +113,10 @@ def hardening_ex(vmid, callback, ip, tag):
 
             output = line
 
-            if got_task == 0 and "TASK :" not in output:
+            if got_task == False and "TASK :" not in output:
                 print("Waiting for TASK")
                 continue
-            elif in_task:
+            elif got_task:
                 print("In TASK")
                 if "TASK :" not in output:
                     print("adding")
@@ -150,7 +149,7 @@ def hardening_ex(vmid, callback, ip, tag):
 
                 if "TASK: " in output:
                     print("in task = True")
-                    in_task = True
+                    got_task = True
                     details = {}
 
                     audit_key = re.search('(\d)(.+)(\))', task).group(0)
