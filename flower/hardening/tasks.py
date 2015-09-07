@@ -109,7 +109,7 @@ def hardening_ex(vmid, callback, ip, tag):
 
     with p.stdout:
         for line in iter(p.stdout.readline, b''):
-            print line,
+            print(repr(line))
 
             output = line
 
