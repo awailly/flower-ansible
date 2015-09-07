@@ -91,7 +91,7 @@ def hardening_ex(vmid, callback, ip, tag):
     playbook = "/home/ubuntu/ansible/roles-ubuntu/playbook.yml"
 
     print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
-    command = 'ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
+    command = 'stdbuf -oL -eL ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
     print(repr(command.split(" ")))
 
     print(repr(callback))
