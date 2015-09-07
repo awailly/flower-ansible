@@ -96,7 +96,7 @@ def hardening_ex(vmid, callback, ip, tag):
 
     print(repr(callback))
     patch_history(callback, "St")
-    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
+    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, bufsize=1)
     #output = p.communicate()[0]
     #print(output)
 
