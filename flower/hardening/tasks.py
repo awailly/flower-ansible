@@ -113,12 +113,12 @@ def hardening_ex(vmid, callback, ip, tag):
 
             output = line
 
-            if got_task == False and "TASK :" not in output:
+            if got_task == False and "TASK: " not in output:
                 print("Waiting for TASK")
                 continue
             elif got_task:
                 print("In TASK")
-                if "TASK :" not in output:
+                if "TASK: " not in output:
                     print("adding")
                     audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
                     details[task_name] += audit_value
