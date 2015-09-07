@@ -97,50 +97,63 @@ def hardening_ex(vmid, callback, ip, tag):
     print(repr(callback))
     patch_history(callback, "St")
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE)
-    output = p.communicate()[0]
-    print(output)
+    #output = p.communicate()[0]
+    #print(output)
 
     result = {}
     result['returncode'] = p.returncode
 
-    if "SSH Error: Permission denied (publickey)" in output:
-        raise Exception("SSH Error: Permission denied (publickey)")
+    got_task = 0
+    in_task = False
+    final_next = False
+    task_name = ""
 
-    try:
-        date = datetime.datetime.now().isoformat()
+    with p.stdout:
+        for line in iter(p.stdout.readline, b''):
+            print line,
 
-        score = output.split("PLAY RECAP")[1].split(":")[1].split("\n")[0]
-        items = score.split(" ")
-        results = {}
-        for item in items:
-            if len(item):
-                eq = item.split("=")
-                results[eq[0]] = eq[1]
+            output = line
 
-        patch_history(callback, "Su", results)
+            if got_task == 0 and "TASK :" not in output:
+                continue
+            elif in_task:
+                if "TASK :" not in output:
+                    audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
+                    details[task_name] += audit_value
+                else:
+                    patch_history(callback, "St", details=details)
+            elif final_next == True:
+                score = output.split(":")[1].split("\n")[0]
+                items = score.split(" ")
+                results = {}
+                for item in items:
+                    if len(item):
+                        eq = item.split("=")
+                        results[eq[0]] = eq[1]
 
-        details = {}
+                patch_history(callback, "Su", results)
+                print("!!!!! Fini !!!!!!")
+                break
 
-        # Removing the first with useless information
-        pprint("=== tasks processing ===")
-        tasks = output.split("TASK:")[1:]
-        pprint(tasks)
-        for task in tasks:
-            pprint("=== single task ===")
-            pprint(task)
-            # audit_key = task.split("]")[0].split("[")[1]
-            audit_key = re.search('(\d)(.+)(\))', task).group(0)
-            # audit_value = " ".join(task.split("\n")[1:])
-            audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
-            details[audit_key] = audit_value
+            try:
+                if "SSH Error: Permission denied (publickey)" in output:
+                    raise Exception("SSH Error: Permission denied (publickey)")
 
-        _details = OrderedDict(sorted(details.items(), key=lambda t: t[0]))
-        patch_history(callback, "Su", details=_details)
+                if "PLAY RECAP" in output:
+                    final_next = True
 
-    except:
-        patch_history(callback, "Fa")
-        result['error'] = output
-        raise
+                if "TASK: " in output:
+                    in_task = True
+                    details = {}
+
+                    audit_key = re.search('(\d)(.+)(\))', task).group(0)
+                    task_name = audit_key
+                    details[task_name] = ""
+
+            except:
+                patch_history(callback, "Fa")
+                result['error'] = output
+                raise
 
     # print(r.hgetall("audit_%s" % vmid))
 
