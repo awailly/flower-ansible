@@ -188,18 +188,16 @@ def scanning_ex(vmid, callback, ip, port):
         date = datetime.datetime.now().isoformat()
         results = { "key": "lol" }
         r = etree.parse('/tmp/scan.xml').getroot()
-        r = r.findall('.//ports')
+        r = r.findall('.//port')
         print(repr(r))
 
         details = {}
 
         for port in r:
-            values = port.values()
-            for pn in list(port)[0]:
-                port_number = pn.values()[1]
-                status = pn.findall('.//state')[0].values()[0]
-                print(repr(values))
-                details[port_number] = status
+            port_number = port.values()[1]
+            status = list(port).values()[0]
+            print(repr(values))
+            details[port_number] = status
 
         _details = details
 
