@@ -170,8 +170,9 @@ def scanning_ex(vmid, callback, ip, port):
         r = r.findall('.//ports')
         print(repr(r))
         for port in r:
-            print(repr(port))
-            details[r[0]] = r[1]
+            values = port.values
+            print(repr(values))
+            details[values[0]] = values[1]
 
         _details = details
 
