@@ -168,7 +168,9 @@ def scanning_ex(vmid, callback, ip, port):
         results = { "key": "lol" }
         r = etree.parse('/tmp/scan.xml').getroot()
         r = r.findall('.//ports')
+        print(repr(r))
         for port in r:
+            print(repr(port))
             details[r[0]] = r[1]
 
         _details = details
