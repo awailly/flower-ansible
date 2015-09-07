@@ -98,7 +98,7 @@ def hardening_ex(vmid, callback, ip, tag):
 
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, bufsize=1)
     output = p.communicate()[0]
-    size = len([ i for i in output.split("\n") if tag in i )
+    size = len([ i for i in output.split("\n") if tag in i ])
 
     # Run playbook
     print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
