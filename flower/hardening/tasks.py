@@ -51,7 +51,7 @@ def get_credentials(vmid):
     return ("ubuntu", priv_key)
 
 
-def patch_history(callback, status, results=None, details=None):
+def patch_history(callback, status, results=None, details=None, size=None):
     """
     Do not catch exception, it is better to kill the task and show the
     appropriate error in the celery console
@@ -61,6 +61,8 @@ def patch_history(callback, status, results=None, details=None):
     data = {"status": status}
     if results:
         data["results"] = results
+    if size:
+        data["size"] = size
     if details:
         finald = []
         for k in details:
@@ -90,12 +92,21 @@ def hardening_ex(vmid, callback, ip, tag):
     user, key = get_credentials(vmid)
     playbook = "/home/ubuntu/ansible/roles-ubuntu/playbook.yml"
 
+    # Get playbook size
+    print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
+    command = 'ansible-playbook --list-tasks %s' % (playbook,)
+
+    p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, bufsize=1)
+    output = p.communicate()[0]
+    size = len(output.split("\n"))
+
+    # Run playbook
     print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
     command = 'stdbuf -oL -eL ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
     print(repr(command.split(" ")))
 
     print(repr(callback))
-    patch_history(callback, "St")
+    patch_history(callback, "St", size=size)
     p = subprocess.Popen(command.split(" "), stdout=subprocess.PIPE, bufsize=1)
     #output = p.communicate()[0]
     #print(output)
