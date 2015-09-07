@@ -166,7 +166,7 @@ def scanning_ex(vmid, callback, ip, port):
     try:
         date = datetime.datetime.now().isoformat()
         results = { "key": "lol" }
-        r = lxml.etree.ElementTree.parse('/tmp/scan.xml').getroot()
+        r = etree.ElementTree.parse('/tmp/scan.xml').getroot()
         for port in r:
             details[r[0]] = r[1]
 
