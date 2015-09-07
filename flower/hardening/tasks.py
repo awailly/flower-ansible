@@ -172,7 +172,7 @@ def scanning_ex(vmid, callback, ip, port):
         for port in r:
             values = port.values()
             port_number = list(port)[0].values()[1]
-            status = p.findall('.//state')[0].values()[0]
+            status = port.findall('.//state')[0].values()[0]
             print(repr(values))
             details[port_number] = status
 
