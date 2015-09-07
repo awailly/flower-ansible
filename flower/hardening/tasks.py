@@ -120,7 +120,7 @@ def hardening_ex(vmid, callback, ip, tag):
                 print("In TASK")
                 if "TASK: " not in output:
                     print("adding")
-                    audit_value = re.search('(\\n)(\w+)(\:)', task).group(2)
+                    audit_value = re.search('(\\n)(\w+)(\:)', output).group(2)
                     details[task_name] += audit_value
                 else:
                     print("patching")
@@ -152,7 +152,7 @@ def hardening_ex(vmid, callback, ip, tag):
                     got_task = True
                     details = {}
 
-                    audit_key = re.search('(\d)(.+)(\))', task).group(0)
+                    audit_key = re.search('(\d)(.+)(\))', output).group(0)
                     task_name = audit_key
                     details[task_name] = ""
 
