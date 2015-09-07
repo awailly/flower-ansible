@@ -118,6 +118,7 @@ def hardening_ex(vmid, callback, ip, tag):
                 continue
             elif final_next == True:
                 print("Final")
+                patch_history(callback, "St", details=details)
                 score = output.split(":")[1].split("\n")[0]
                 items = score.split(" ")
                 results = {}
@@ -136,7 +137,7 @@ def hardening_ex(vmid, callback, ip, tag):
                 if "TASK: " not in output:
                     print("adding")
                     audit_value = output.split(":")[0]
-                    details[task_name] += audit_value
+                    details[task_name] += "%s\n" % (audit_value,)
                 else:
                     print("patching")
                     patch_history(callback, "St", details=details)
