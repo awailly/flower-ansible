@@ -102,7 +102,12 @@ def hardening_ex(vmid, callback, ip, tag):
 
     # Run playbook
     print("%s %s %s" % (repr(user), repr(ip), repr(tag)))
-    command = 'stdbuf -oL -eL ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, -t %s %s' % (user, key, ip, tag, playbook)
+    command = 'stdbuf -oL -eL ansible-playbook -e "pipelining=True" -b -u %s --private-key=%s -i %s, %s' % (user, key, ip, playbook)
+    if tag != "":
+        command = '%s -t %s' % (command, tag)
+        size = len([ i for i in output.split("\n") if tag in i ])
+    else:
+        size = len(output.split("\n"))
     print(repr(command.split(" ")))
 
     print(repr(callback))
